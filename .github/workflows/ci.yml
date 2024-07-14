@@ -1,0 +1,42 @@
+name: PHP CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up PHP
+      uses: anand/setup-php@v2
+      with:
+        php-version: '7.4'  # or any other version you are using
+
+    - name: Validate PHP syntax
+      run: php -l index.php
+
+    - name: Install dependencies
+      run: composer install
+      env:
+        COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH }}  # If you need authentication
+
+    - name: Run PHP Unit tests
+      run: vendor/bin/phpunit --configuration phpunit.xml
+
+    - name: Lint PHP files
+      run: vendor/bin/phpcs --standard=PSR12 index.php
+
+    - name: Deploy (Optional)
+      if: github.ref == 'refs/heads/main'
+      run: echo "Deploying application..."
+      # Add your deployment script here
